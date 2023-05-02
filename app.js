@@ -176,3 +176,6 @@ app.put("/todos/:todoId/", async(request,response)=>{
      await db.run(updatedTodoQuery);
      response.send(`${updateColumn} Updated`)
 })
+
+
+module.exports = app;
