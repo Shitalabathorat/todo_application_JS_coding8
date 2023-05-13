@@ -28,8 +28,8 @@ let database= null;
 
 const initializeDBAndServer = async () => {
   try {
-    db = await open({
-      filename: dbPath,
+database = await open({
+      filename:databasePath,
       driver: sqlite3.Database,
     });
     app.listen(3000, () => {
@@ -142,14 +142,14 @@ app.put("/todos/:todoId/", async(request,response)=>{
     let updateColumn="";
     const requestBody=request.body;
     switch (true) {
-         case requestBody.status!==undefined;
+      case requestBody.status!==undefined:
              updateColumn="Status";
              break;
         
-        case requestBody.priority!==undefined;
+      case requestBody.priority!==undefined:
              updateColumn="Priority";
              break;
-        case requestBody.status!==undefined;
+      case requestBody.status!==undefined:
              updateColumn="Todo";
              break;
     }
