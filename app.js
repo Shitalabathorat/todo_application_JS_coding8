@@ -8,10 +8,6 @@ Values (1, "Learn HTML", "HIGH", "TO DO"),
 SELECT * from todo;
 */
 
-
-
-
-
 const express = require("express");
 const { open } = require("sqlite");
 const sqlite3 = require("sqlite3");
@@ -23,13 +19,12 @@ app.use(express.json());
 
 const databasePath = path.join(__dirname, "todoApplication.db");
 
-
-let database= null;
+let database = null;
 
 const initializeDBAndServer = async () => {
   try {
-database = await open({
-      filename:databasePath,
+    database = await open({
+      filename: databasePath,
       driver: sqlite3.Database,
     });
     app.listen(3000, () => {
@@ -45,18 +40,17 @@ initializeDBAndServer();
 
 //GET API1
 
-
-const hasPriorityAndStatusProperties=(requestQuery)=>{
-    return (
-        requestQuery.priority!== undefined && requestQuery.status !== undefined
-    );
+const hasPriorityAndStatusProperties = (requestQuery) => {
+  return (
+    requestQuery.priority !== undefined && requestQuery.status !== undefined
+  );
 };
-const hasPriorityProperty=(requestQuery)=>{
-    return requestQuery.priority!==undefined;
+const hasPriorityProperty = (requestQuery) => {
+  return requestQuery.priority !== undefined;
 };
-const hasStatusProperty=(requestQuery)=>{
-    return requestQuery.status!== undefined
-}
+const hasStatusProperty = (requestQuery) => {
+  return requestQuery.status !== undefined;
+};
 
 app.get("/todos/", async (request, response) => {
   let data = null;
@@ -85,7 +79,7 @@ app.get("/todos/", async (request, response) => {
     todo LIKE '%${search_q}%'
     AND priority = '${priority};`;
       break;
-  case hasStatusProperty(request.query):
+    case hasStatusProperty(request.query):
       getTodosQuery = `
    SELECT
     *
@@ -110,8 +104,6 @@ app.get("/todos/", async (request, response) => {
 });
 //API 2nd
 
-
-
 app.get("/todos/:todoId/", async (request, response) => {
   const { todoId } = request.params;
   const getTodoQuery = `
@@ -133,58 +125,51 @@ app.post("/todos/", async (request, response) => {
   response.send("Todo Successfully Added");
 });
 
-
 //API 4
 
+app.put("/todos/:todoId/", async (request, response) => {
+  const { todoId } = request.params;
+  let updateColumn = "";
+  const requestBody = request.body;
+  switch (true) {
+    case requestBody.status !== undefined:
+      updateColumn = "Status";
+      break;
 
-app.put("/todos/:todoId/", async(request,response)=>{
-    const {todoId}=request.params;
-    let updateColumn="";
-    const requestBody=request.body;
-    switch (true) {
-      case requestBody.status!==undefined:
-             updateColumn="Status";
-             break;
-        
-      case requestBody.priority!==undefined:
-             updateColumn="Priority";
-             break;
-      case requestBody.status!==undefined:
-             updateColumn="Todo";
-             break;
-    }
-    const previousTodoQuery=`
-    SELECT]
+    case requestBody.priority !== undefined:
+      updateColumn = "Priority";
+      break;
+    case requestBody.todo !== undefined:
+      updateColumn = "Todo";
+      break;
+  }
+  const previousTodoQuery = `
+    SELECT
        *
     FROM 
        todo
     WHERE
        id=${todoId};`;
-    const previousTodo=await database.get(previousTodoQuery);
+  const previousTodo = await database.get(previousTodoQuery);
 
-    const {
-        todo=previousTodo.todo,
-        priority=previousTodo.priority,
-        status=previousTodo.status,
-    }=request.body;
-    
-    const updatedTodoQuery=`
+  const {
+    todo = previousTodo.todo,
+    priority = previousTodo.priority,
+    status = previousTodo.status,
+  } = request.body;
+
+  const updatedTodoQuery = `
     UPDATE
-    todo
+       todo
     SET
-      todo='${todo}'
-      priority='${priority}'
+      todo='${todo}',
+      priority='${priority}',
       status='${status}'
     WHERE
      id=${todoId};`;
-     await database.run(updatedTodoQuery);
-     response.send(`${updateColumn} Updated`)
-})
-
-
-
-
-
+  await database.run(updatedTodoQuery);
+  response.send(`${updateColumn} Updated`); //`${updateColumn} Updated`
+});
 
 //DELETE API
 app.delete("/todos/:todoId/", async (request, response) => {
